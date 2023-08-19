@@ -1,0 +1,14 @@
+{
+    "tonnekmhr": {
+      "Plane": "213000000",
+      "Train": "180",
+      "Long-haul truck": "1500",
+      "Urban delivery truck": "180"
+    },
+    "gco2tonnekm": {
+      "Plane": "800",
+      "Train": "307",
+      "Long-haul truck": "57",
+      "Urban delivery truck": "307"
+    }
+  }
