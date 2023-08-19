@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "OBJECTID": 1, "state": "VIC", "name": "Avalon Airport" }, "geometry": { "type": "Point", "coordinates": [ 144.472492, -38.038817 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 2, "state": "VIC", "name": "Melbourne International Airport" }, "geometry": { "type": "Point", "coordinates": [ 144.842027, -37.665634 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 3, "state": "TAS", "name": "Hobart International Airport" }, "geometry": { "type": "Point", "coordinates": [ 147.51001, -42.83667 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 4, "state": "TAS", "name": "Launceston Airport" }, "geometry": { "type": "Point", "coordinates": [ 147.21501, -41.545 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 5, "state": "WA", "name": "Perth Airport" }, "geometry": { "type": "Point", "coordinates": [ 115.950917, -31.933817 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 6, "state": "NT", "name": "Darwin International Airport" }, "geometry": { "type": "Point", "coordinates": [ 130.8672, -12.400967 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 7, "state": "SA", "name": "Adelaide Airport" }, "geometry": { "type": "Point", "coordinates": [ 138.517433, -34.934117 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 8, "state": "NSW", "name": "Sydney International Airport" }, "geometry": { "type": "Point", "coordinates": [ 151.167233, -33.934183 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 9, "state": "NSW", "name": "Newcastle Airport" }, "geometry": { "type": "Point", "coordinates": [ 151.839992, -32.804194 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 10, "state": "QLD", "name": "Cairns Airport" }, "geometry": { "type": "Point", "coordinates": [ 145.754026, -16.876268 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 11, "state": "QLD", "name": "Brisbane Airport" }, "geometry": { "type": "Point", "coordinates": [ 153.11765, -27.397984 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 12, "state": "QLD", "name": "Gold Coast Airport" }, "geometry": { "type": "Point", "coordinates": [ 153.513292, -28.166156 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 13, "state": "QLD", "name": "Charlton-Wellcamp" }, "geometry": { "type": "Point", "coordinates": [ 151.795, -27.55861 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 14, "state": "ACT", "name": "Canberra International Airport" }, "geometry": { "type": "Point", "coordinates": [ 149.19221, -35.304872 ] } }
+]
+}

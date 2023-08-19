@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "OBJECTID": 1, "state": "WA", "name": "Northam" }, "geometry": { "type": "Point", "coordinates": [ 116.732753, -31.637163 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 2, "state": "WA", "name": "Wubin" }, "geometry": { "type": "Point", "coordinates": [ 116.629826, -30.104002 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 3, "state": "WA", "name": "Bedfordale" }, "geometry": { "type": "Point", "coordinates": [ 116.083551, -32.18356 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 4, "state": "WA", "name": "Carnarvon" }, "geometry": { "type": "Point", "coordinates": [ 113.701103, -24.881317 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 5, "state": "WA", "name": "Exmouth" }, "geometry": { "type": "Point", "coordinates": [ 114.115623, -22.02206 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 6, "state": "WA", "name": "Broome" }, "geometry": { "type": "Point", "coordinates": [ 122.2392, -17.93172 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 7, "state": "WA", "name": "Apple Street" }, "geometry": { "type": "Point", "coordinates": [ 116.031769, -31.763982 ] } },
+{ "type": "Feature", "properties": { "OBJECTID": 8, "state": "NT", "name": "Berrimah" }, "geometry": { "type": "Point", "coordinates": [ 130.943248, -12.45769 ] } }
+]
+}
