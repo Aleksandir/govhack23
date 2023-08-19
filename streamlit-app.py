@@ -59,6 +59,10 @@ def load_key_rail_freight_route():
 @st.cache_data
 def load_key_road_freight_route():
     return load_json('./data/simplified/key_road_freight_route_simplified.geojson')
+
+@st.cache_data
+def airport_data():
+    return pd.read_json("data/raw/airport_coordinates.json")
     
 df = collect_data()
 
@@ -82,9 +86,13 @@ col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as need
 # Display the Pydeck map in the first column
 target_layer_names = col1.multiselect(
     label='What layers would you like to show', 
-    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail'], 
+    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail', 'Roads (NLTN)'], 
     default=['Air', 'Roads (Local)', 'Rail'],
 )
+
+airport_df = airport_data()
+selected_airport = col1.selectbox("Select Airport", list(airport_df["from_name"].unique()) + ["None"])
+
 
 # Define the initial view state centered on Australia
 initial_view = pdk.ViewState(
@@ -103,6 +111,19 @@ layers = [
         width_min_pixels=2,
         get_path="path",
         get_width=3,
+        visible='Roads (Local)' in target_layer_names,
+    ),
+    pdk.Layer(
+        "GreatCircleLayer",
+        airport_df[airport_df["from_name"] == selected_airport],
+        pickable=True,
+        get_stroke_width=12,
+        get_source_position="from",
+        get_target_position="to",
+        get_source_color=[255, 255, 0],
+        get_target_color=[255, 0, 255],
+        auto_highlight=True,
+        visible='Air' in target_layer_names,
     ),
     pdk.Layer(
         type="GeoJsonLayer",
@@ -129,8 +150,8 @@ layers = [
         data=load_nltn_road_data(),
         get_line_color=[0, 0, 255],
         line_width_min_pixels=1,
-        visible='Roads (Local)' in target_layer_names,
-    ),
+        visible='Roads (NLTN)' in target_layer_names,
+    )
 ]
 
 # Create a Pydeck map
