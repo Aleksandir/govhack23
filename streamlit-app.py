@@ -7,6 +7,10 @@ import pydeck as pdk
 
 st.set_page_config(layout="wide")
 
+def load_json(filename: str):
+    with open(filename) as f:
+        return json.load(f)
+
 #TODO: Initialise datasets from DuckDB here 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
@@ -23,23 +27,19 @@ def collect_data() -> pd.DataFrame:
 
 @st.cache_data
 def load_rail_geojson():
-    with open('./data/simplified/rail_map_simplified.geojson') as f:
-        return json.load(f)
+    return load_json('./data/simplified/rail_map_simplified.geojson')
     
 @st.cache_data
-def load_nltn_road_data() -> pd.DataFrame:
-    with open('./data/raw/nltn_road.geojson') as f:
-        return json.load(f)
+def load_nltn_road_data():
+    return load_json('./data/raw/nltn_road.geojson')
 
 @st.cache_data
-def load_key_rail_freight_route() -> pd.DataFrame:
-    with open('./data/raw/key_rail_freight_route.geojson') as f:
-        return json.load(f)
+def load_key_rail_freight_route():
+    return load_json('./data/raw/key_rail_freight_route.geojson')
     
 @st.cache_data
-def load_key_road_freight_route() -> pd.DataFrame:
-    with open('./data/raw/key_road_freight_route.geojson') as f:
-        return json.load(f)
+def load_key_road_freight_route():
+    return load_json('./data/raw/key_road_freight_route.geojson')
     
 
 df = collect_data()
