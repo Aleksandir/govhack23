@@ -1,15 +1,12 @@
+
 import json
 
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
-ASSUMPTIONS = {
-    'kg/co2': [100],
-    'kg/km': [100],
-}
-
 st.set_page_config(layout="wide")
+from pages.Assumptions import ASSUMPTIONS
 
 def load_json(filename: str):
     with open(filename) as f:
@@ -176,7 +173,3 @@ with col2:
 st.write('# Generative AI: Interrogate the data')
 st.divider()
 question = st.text_input("Ask a question about the data")
-
-#%% Assumptions
-with st.expander("ASSUMPTIONS"):
-    st.write(ASSUMPTIONS)
