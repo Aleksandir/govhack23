@@ -3,3 +3,5 @@ duckdb
 shapely
 streamlit
 pydeck
+numpy
+plotly
