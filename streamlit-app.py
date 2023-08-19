@@ -4,6 +4,7 @@ import json
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
+import numpy as np
 
 st.set_page_config(layout="wide")
 from pages.Assumptions import ASSUMPTIONS
@@ -11,27 +12,56 @@ from pages.Assumptions import ASSUMPTIONS
 def load_json(filename: str):
     with open(filename) as f:
         return json.load(f)
-    
-def map_score_to_color(score: float, score_type: str) -> int:
 
+
+def calculate_metric(score: float, score_type: str, hydrogen_uptake_percentage: int) -> float:
+    
     LIMITS = {
         'tonne.km/hr': (0, 1000),
-        'gco2/tonne.km': (2, 1000),
-        'n_stopovers': (3, 1000),
-        'km/h': (0, 2000),
+        'gco2/tonne.km': (1, 1000),
+        'km/h': (2, 1000),
     }
 
     if score_type not in LIMITS.keys():
         raise Exception("Invalid score type")    
 
-    LOWER_LIMIT, UPPER_LIMIT = LIMITS[score_type]
+    # Adjust for hydrogen uptake 
+    HYDROGEN_FACTOR = 200
+    score += (hydrogen_uptake_percentage * HYDROGEN_FACTOR)
 
-    normalised_score =  score / (UPPER_LIMIT - LOWER_LIMIT)
-    
+    # Normalise metric between upper and lower limits
+    LOWER_LIMIT, UPPER_LIMIT = LIMITS[score_type]
+    normalised_score =  np.clip(score - LOWER_LIMIT, 0, UPPER_LIMIT) / (UPPER_LIMIT - LOWER_LIMIT)
+
+    return normalised_score
+
+
+def calculate_freight_network_score(metric_list: list[float]) -> float:
+
+    if len(metric_list) < 1:
+        raise Exception("Empty metric list: no metrics to calculate")
+
+    return np.mean(metric_list)
+     
+
+def map_score_to_color(normalised_score: float) -> list[int]:
+
     red = int((1 - normalised_score) * 255)
     green = int(normalised_score * 255)
 
     return [red, green, 0]
+
+
+def get_network_color(network_type: str, hydrogen_uptake_percentage: int) -> list[int]:
+
+    score_1 = calculate_metric(score=float(ASSUMPTIONS['tonne.km/hr'][network_type]), score_type='tonne.km/hr', hydrogen_uptake_percentage=hydrogen_uptake_percentage)
+    score_2 = calculate_metric(score=float(ASSUMPTIONS['gco2/tonne.mk'][network_type]), score_type='gco2/tonne.km', hydrogen_uptake_percentage=hydrogen_uptake_percentage)
+
+    network_score = calculate_freight_network_score(metric_list=[score_1, score_2])
+    rgb_value_list = map_score_to_color(normalised_score=network_score)
+
+    return rgb_value_list
+
 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
@@ -111,6 +141,19 @@ initial_view = pdk.ViewState(
     zoom=3
 )
 
+
+# Display the slider values in the second column
+with col2:
+    st.write("# Config.")
+    t1, t2, t3 = st.tabs(['Hydrogen Power', 'Freight Network Distribution', 'Commodity Demand'])
+    t1.write('#### What proportion of our fleet is H2 powered?')
+    air_slider = t1.slider(" ✈️ Air", 0, 100, 50)
+    land_slider = t1.slider("🚚 Land", 0, 100, 50)
+    rail_slider = t1.slider("🚅 Rail", 0, 100, 50)
+
+    # st.write(get_network_color('rail', hydrogen_uptake_percentage=land_slider))
+    # st.write(get_network_color('road_interstate', hydrogen_uptake_percentage=rail_slider))
+
 # Add layers individually, as setting visibility doesn't actually remove data and improve performance.
 layers = []
 if 'Roads (Local)' in target_layer_names:
@@ -133,8 +176,8 @@ if 'Air' in target_layer_names:
         get_stroke_width=12,
         get_source_position="from",
         get_target_position="to",
-        get_source_color=[255, 255, 0],
-        get_target_color=[255, 0, 255],
+        get_source_color=list(np.array(get_network_color('air', hydrogen_uptake_percentage=air_slider))*0.45),
+        get_target_color=get_network_color('air', hydrogen_uptake_percentage=air_slider),
         auto_highlight=True,
     ))
 
@@ -142,7 +185,7 @@ if 'Rail' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_rail_freight_route(),
-        get_line_color=[0, 255, 0],
+        get_line_color=get_network_color('rail', hydrogen_uptake_percentage=rail_slider),
         line_width_min_pixels=1,
     ))
 
@@ -150,7 +193,7 @@ if 'Roads (Interstate)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_road_freight_route(),
-        get_line_color=[255, 0, 0],
+        get_line_color=get_network_color('road_interstate', hydrogen_uptake_percentage=land_slider),
         line_width_min_pixels=1,
     ))
 
@@ -158,28 +201,20 @@ if 'Roads (NLTN)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_nltn_road_data(),
-        get_line_color=[0, 0, 255],
+        get_line_color=get_network_color('road_urban', hydrogen_uptake_percentage=land_slider),
         line_width_min_pixels=1,
     ))
 
 
 # Create a Pydeck map
 map_layer = pdk.Deck(
-    map_style="mapbox://styles/mapbox/light-v9",
+    map_style="mapbox://styles/mapbox/dark-v9",
     initial_view_state=initial_view,
     layers=layers
 )
 
 col1.pydeck_chart(map_layer)
 
-# Display the slider values in the second column
-with col2:
-    st.write("# Config.")
-    t1, t2, t3 = st.tabs(['Hydrogen Power', 'Freight Network Distribution', 'Commodity Demand'])
-    t1.write('#### What proportion of our fleet is H2 powered?')
-    air_slider = t1.slider(" ✈️ Air", 0, 100, 50)
-    land_slider = t1.slider("🚚 Land", 0, 100, 50)
-    rail_slider = t1.slider("🚅 Rail", 0, 100, 50)
 
 #%% Section 4: Generative AI 
 st.write('# Generative AI: Interrogate the data')
