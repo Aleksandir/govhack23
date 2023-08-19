@@ -23,7 +23,7 @@ def collect_data() -> pd.DataFrame:
 
 @st.cache_data
 def load_rail_geojson():
-    with open('./data/raw/rail_map.geojson') as f:
+    with open('./data/simplified/rail_map_simplified.geojson') as f:
         return json.load(f)
     
 @st.cache_data
