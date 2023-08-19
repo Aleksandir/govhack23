@@ -1,10 +1,8 @@
 import streamlit as st
 import pandas as pd
-from shapely.wkt import loads
 
 import streamlit as st
 import pydeck as pdk
-import geopandas as gpd
 
 
 st.set_page_config(layout="wide")
@@ -12,7 +10,15 @@ st.set_page_config(layout="wide")
 #TODO: Initialise datasets from DuckDB here 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
-    df = pd.read_csv("data/raw/congestion_2020/geometries_2020.csv").set_index('route_name')
+    df = pd.read_csv("~/Downloads/congestion_2020/geometries_2020.csv").set_index('route_name')
+    str_to_linstr = lambda linstr: [[cord.split(" ")[1], cord.split(" ")[0]] for cord in linstr.strip('LINESTRING (').strip(')').split(", ")]
+
+    df['path'] = df['route_geom'].apply(str_to_linstr)
+    df['name'] = df.index
+    df['color'] = [(250, 166, 26)]*len(df.index)
+
+    df = df.reset_index()[['name', 'color', 'path']]
+    df["path"] = df["path"].apply(lambda path: [x[::-1] for x in path])
     return df
 
 df = collect_data()
@@ -26,11 +32,6 @@ st.divider()
 current_year = st.slider("Year Range", 1990, 2050, (2023))
 st.divider()
 
-# Create a GeoDataFrame from the linestrings
-# gdf = gpd.GeoDataFrame(geometry=df['route_geom'].apply(str_to_linstr).apply(lambda x: 'LINESTRING (' + ', '.join([' '.join(y) for y in x]) + ')').apply(loads))
-gdf = gpd.GeoDataFrame(geometry=linestrings)
-
-
 # Define the initial view state centered on Australia
 initial_view = pdk.ViewState(
     latitude=-25.2744,
@@ -38,11 +39,24 @@ initial_view = pdk.ViewState(
     zoom=3
 )
 
+layers = [
+    pdk.Layer(
+        type="PathLayer",
+        data=df,
+        pickable=True,
+        get_color="color",
+        width_scale=20,
+        width_min_pixels=2,
+        get_path="path",
+        get_width=3,
+    )
+]
+
 # Create a Pydeck map
 map_layer = pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     initial_view_state=initial_view,
-    layers=[]
+    layers=layers
 )
 
 # Use columns to create layout
