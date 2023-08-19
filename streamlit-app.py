@@ -4,6 +4,10 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 
+ASSUMPTIONS = {
+    'kg/co2': [100],
+    'kg/km': [100],
+}
 
 st.set_page_config(layout="wide")
 
@@ -14,10 +18,10 @@ def load_json(filename: str):
 def map_score_to_line_thickness(score: float, score_type: str) -> int:
 
     limits_dict = {
-            'tonne.km/hr': (0, 1000),
-            'gco2/tonne.km': (2, 1000),
-            'n_stopovers': (3, 1000),
-            'km/h': (0, 2000),
+        'tonne.km/hr': (0, 1000),
+        'gco2/tonne.km': (2, 1000),
+        'n_stopovers': (3, 1000),
+        'km/h': (0, 2000),
     }
 
     if score_type not in limits_dict.keys():
@@ -27,9 +31,6 @@ def map_score_to_line_thickness(score: float, score_type: str) -> int:
 
     return score / (UPPER_LIMIT - LOWER_LIMIT)
 
-
-
-#TODO: Initialise datasets from DuckDB here 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
     df = pd.read_csv("data/raw/congestion_2020/geometries_2020.csv").set_index('route_name')
@@ -59,24 +60,22 @@ def load_key_rail_freight_route():
 def load_key_road_freight_route():
     return load_json('./data/simplified/key_road_freight_route_simplified.geojson')
     
-
 df = collect_data()
 
 st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
 
-assumptions = {
-    'kg/co2': [100],
-    'kg/km': [100],
-}
+#%% Section 2: Metrics
 
-with st.expander("Assumptions"):
-    st.write(assumptions)
+c1, c2, c3, c4, c5 = st.columns(5)
+c1.metric(label="Metric A", value="12345", delta="5")
+c2.metric(label="Metric B", value="12345", delta="-5")
+c3.metric(label="Metric C", value="12345", delta="25")
+c4.metric(label="Metric D", value="12345", delta="-25")
+c5.metric(label="Metric E", value="12345", delta="100")
 st.divider()
 
-current_year = st.slider("Year Range", 1990, 2050, (2023))
-st.divider()
-
+#%% Section 3 - Maps and Config
 # Use columns to create layout
 col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as needed
 
@@ -145,25 +144,18 @@ col1.pydeck_chart(map_layer)
 
 # Display the slider values in the second column
 with col2:
-    # Sliders for different modes of transportation
-    st.write('## Fleet powered by H2 (%)')
-    air_slider = st.slider(" ✈️ Air", 0, 100, 50)
-    sea_slider = st.slider("🚢 Sea", 0, 100, 50)
-    land_slider = st.slider("🚚 Land", 0, 100, 50)
-    rail_slider = st.slider("🚅 Rail", 0, 100, 50)
-
-#%% Section 3: Metrics
-st.write("# Cool Metrics")
-st.divider()
-
-c1, c2, c3, c4, c5 = st.columns(5)
-c1.metric(label="Metric A", value="12345", delta="5")
-c2.metric(label="Metric B", value="12345", delta="-5")
-c3.metric(label="Metric C", value="12345", delta="25")
-c4.metric(label="Metric D", value="12345", delta="-25")
-c5.metric(label="Metric E", value="12345", delta="100")
+    st.write("# Config.")
+    t1, t2, t3 = st.tabs(['Hydrogen Power', 'Freight Network Distribution', 'Commodity Demand'])
+    t1.write('#### What proportion of our fleet is H2 powered?')
+    air_slider = t1.slider(" ✈️ Air", 0, 100, 50)
+    land_slider = t1.slider("🚚 Land", 0, 100, 50)
+    rail_slider = t1.slider("🚅 Rail", 0, 100, 50)
 
 #%% Section 4: Generative AI 
 st.write('# Generative AI: Interrogate the data')
 st.divider()
 question = st.text_input("Ask a question about the data")
+
+#%% Assumptions
+with st.expander("ASSUMPTIONS"):
+    st.write(ASSUMPTIONS)
