@@ -98,18 +98,21 @@ layers = [
         data=load_key_rail_freight_route(),
         get_line_color=[0, 255, 0],
         line_width_min_pixels=1,
+        visible='Rail' in target_layer_names,
     ),
     pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_road_freight_route(),
         get_line_color=[255, 0, 0],
         line_width_min_pixels=1,
+        visible='Roads (Interstate)' in target_layer_names,
     ),
     pdk.Layer(
         type="GeoJsonLayer",
         data=load_nltn_road_data(),
         get_line_color=[0, 0, 255],
         line_width_min_pixels=1,
+        visible='Roads (Local)' in target_layer_names,
     ),
 ]
 
