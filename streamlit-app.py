@@ -31,15 +31,15 @@ def load_rail_geojson():
     
 @st.cache_data
 def load_nltn_road_data():
-    return load_json('./data/raw/nltn_road.geojson')
+    return load_json('./data/simplified/nltn_road_simplified.geojson')
 
 @st.cache_data
 def load_key_rail_freight_route():
-    return load_json('./data/raw/key_rail_freight_route.geojson')
+    return load_json('./data/simplified/key_rail_freight_route_simplified.geojson')
     
 @st.cache_data
 def load_key_road_freight_route():
-    return load_json('./data/raw/key_road_freight_route.geojson')
+    return load_json('./data/simplified/key_road_freight_route_simplified.geojson')
     
 
 df = collect_data()
