@@ -78,7 +78,7 @@ st.divider()
 
 #%% Section 3 - Maps and Config
 # Use columns to create layout
-col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as needed
+col1, col2 = st.columns([3, 2], gap='medium')  # Adjust the column widths as needed
 
 # Display the Pydeck map in the first column
 target_layer_names = col1.multiselect(
