@@ -103,8 +103,10 @@ initial_view = pdk.ViewState(
     zoom=3
 )
 
-layers = [
-    pdk.Layer(
+# Add layers individually, as setting visibility doesn't actually remove data and improve performance.
+layers = []
+if 'Roads (Local)' in target_layer_names:
+    layers.append(pdk.Layer(
         type="PathLayer",
         data=df,
         pickable=True,
@@ -113,10 +115,11 @@ layers = [
         width_min_pixels=2,
         get_path="path",
         get_width=3,
-        visible='Roads (Local)' in target_layer_names,
-    ),
-    pdk.Layer(
-        "GreatCircleLayer",
+    ))
+
+if 'Air' in target_layer_names:
+    layers.append(pdk.Layer(
+        "ArcLayer",
         airport_df[airport_df["from_name"] == selected_airport],
         pickable=True,
         get_stroke_width=12,
@@ -125,36 +128,32 @@ layers = [
         get_source_color=[255, 255, 0],
         get_target_color=[255, 0, 255],
         auto_highlight=True,
-        visible='Air' in target_layer_names,
-    ),
-    pdk.Layer(
-        type="GeoJsonLayer",
-        data=load_rail_geojson(),
-        get_line_color=[125, 140, 0],
-        line_width_min_pixels=1,
-    ),
-    pdk.Layer(
+    ))
+
+if 'Rail' in target_layer_names:
+    layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_rail_freight_route(),
         get_line_color=[0, 255, 0],
         line_width_min_pixels=1,
-        visible='Rail' in target_layer_names,
-    ),
-    pdk.Layer(
+    ))
+
+if 'Roads (Interstate)' in target_layer_names:
+    layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_road_freight_route(),
         get_line_color=[255, 0, 0],
         line_width_min_pixels=1,
-        visible='Roads (Interstate)' in target_layer_names,
-    ),
-    pdk.Layer(
+    ))
+
+if 'Roads (NLTN)' in target_layer_names:
+    layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_nltn_road_data(),
         get_line_color=[0, 0, 255],
         line_width_min_pixels=1,
-        visible='Roads (NLTN)' in target_layer_names,
-    )
-]
+    ))
+
 
 # Create a Pydeck map
 map_layer = pdk.Deck(
