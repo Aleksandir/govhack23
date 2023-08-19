@@ -65,6 +65,14 @@ def load_key_road_freight_route():
 @st.cache_data
 def airport_data():
     return pd.read_json("data/raw/airport_coordinates.json")
+
+@st.cache_data
+def metric_tonne_km_data():
+    return pd.read_json('data/raw/metric_tonnekm.json')
+
+@st.cache_data
+def hydrogen_emission_data():
+    return pd.read_json("data/raw/hydrogen_emission_pct.json")
     
 df = collect_data()
 
