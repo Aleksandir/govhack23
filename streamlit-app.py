@@ -10,6 +10,24 @@ st.set_page_config(layout="wide")
 def load_json(filename: str):
     with open(filename) as f:
         return json.load(f)
+    
+def map_score_to_line_thickness(score: float, score_type: str) -> int:
+
+    limits_dict = {
+            'tonne.km/hr': (0, 1000),
+            'gco2/tonne.km': (2, 1000),
+            'n_stopovers': (3, 1000),
+            'km/h': (0, 2000),
+    }
+
+    if score_type not in limits_dict.keys():
+        raise Exception("Invalid score type")    
+
+    LOWER_LIMIT, UPPER_LIMIT = limits_dict[score_type]
+
+    return score / (UPPER_LIMIT - LOWER_LIMIT)
+
+
 
 #TODO: Initialise datasets from DuckDB here 
 @st.cache_data
