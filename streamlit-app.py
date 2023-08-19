@@ -139,7 +139,9 @@ selected_airport = col1.selectbox("Select Airport", list(airport_df["from_name"]
 initial_view = pdk.ViewState(
     latitude=-25.2744,
     longitude=133.7751,
-    zoom=3
+    zoom=3,
+    pitch=45,
+    bearing=0,
 )
 
 
