@@ -33,6 +33,16 @@ st.divider()
 current_year = st.slider("Year Range", 1990, 2050, (2023))
 st.divider()
 
+# Use columns to create layout
+col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as needed
+
+# Display the Pydeck map in the first column
+target_layer_names = col1.multiselect(
+    label='What layers would you like to show', 
+    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail'], 
+    default=['Air', 'Roads (Local)', 'Rail'],
+)
+
 # Define the initial view state centered on Australia
 initial_view = pdk.ViewState(
     latitude=-25.2744,
@@ -63,18 +73,6 @@ map_layer = pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     initial_view_state=initial_view,
     layers=layers
-)
-
-# Use columns to create layout
-col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as needed
-
-
-
-# Display the Pydeck map in the first column
-layer_options = col1.multiselect(
-    label='What layers would you like to show', 
-    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail'], 
-    default=['Air', 'Roads (Local)', 'Rail'],
 )
 
 col1.pydeck_chart(map_layer)
