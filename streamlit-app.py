@@ -87,7 +87,7 @@ col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as need
 # Display the Pydeck map in the first column
 target_layer_names = col1.multiselect(
     label='What layers would you like to show', 
-    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail'], 
+    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail', 'Roads (NLTN)'], 
     default=['Air', 'Roads (Local)', 'Rail'],
 )
 
@@ -112,6 +112,7 @@ layers = [
         width_min_pixels=2,
         get_path="path",
         get_width=3,
+        visible='Roads (Local)' in target_layer_names,
     ),
     pdk.Layer(
         "GreatCircleLayer",
@@ -150,7 +151,7 @@ layers = [
         data=load_nltn_road_data(),
         get_line_color=[0, 0, 255],
         line_width_min_pixels=1,
-        visible='Roads (Local)' in target_layer_names,
+        visible='Roads (NLTN)' in target_layer_names,
     )
 ]
 
