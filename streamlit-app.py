@@ -31,14 +31,6 @@ st.divider()
 gdf = gpd.GeoDataFrame(geometry=linestrings)
 
 
-
-# Sliders for different modes of transportation
-air_slider = st.slider("✈️ Air", 0, 100, 50)
-sea_slider = st.slider("🚢 Sea", 0, 100, 50)
-land_slider = st.slider("🚚 Land", 0, 100, 50)
-rail_slider = st.slider("🚅 Rail", 0, 100, 50)
-
-
 # Define the initial view state centered on Australia
 initial_view = pdk.ViewState(
     latitude=-25.2744,
@@ -54,7 +46,9 @@ map_layer = pdk.Deck(
 )
 
 # Use columns to create layout
-col1, col2 = st.columns([3, 2])  # Adjust the column widths as needed
+col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as needed
+
+
 
 # Display the Pydeck map in the first column
 
@@ -62,12 +56,14 @@ col1.pydeck_chart(map_layer)
 
 # Display the slider values in the second column
 with col2:
-    st.markdown("## Slider Values")
-    col2_1, col2_2 = st.columns([1, 1])
-    col2_1.markdown(f"### ✈️ Air: {air_slider}")
-    col2_1.markdown(f"### 🚢 Sea: {sea_slider}")
-    
-    col2_2.markdown(f"### 🚚 Land: {land_slider}")
-    col2_2.markdown(f"### 🚅 Rail: {rail_slider}")
+    # Sliders for different modes of transportation
+    st.write('## Fleet powered by H2 (%)')
+    air_slider = st.slider(" ✈️ Air", 0, 100, 50)
+    sea_slider = st.slider("🚢 Sea", 0, 100, 50)
+    land_slider = st.slider("🚚 Land", 0, 100, 50)
+    rail_slider = st.slider("🚅 Rail", 0, 100, 50)
 
+#%% Section 4: Generative AI 
+st.write('# Generative AI: Interrogate the data')
+st.divider()
 question = st.text_input("Ask a question about the data")
