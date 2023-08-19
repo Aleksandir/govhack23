@@ -1,7 +1,7 @@
-import streamlit as st
-import pandas as pd
+import json
 
 import streamlit as st
+import pandas as pd
 import pydeck as pdk
 
 
@@ -20,6 +20,11 @@ def collect_data() -> pd.DataFrame:
     df = df.reset_index()[['name', 'color', 'path']]
     df["path"] = df["path"].apply(lambda path: [x[::-1] for x in path])
     return df
+
+@st.cache_data
+def load_rail_geojson():
+    with open('./data/raw/rail_map.geojson') as f:
+        return json.load(f)
 
 df = collect_data()
 
@@ -45,7 +50,12 @@ layers = [
         width_min_pixels=2,
         get_path="path",
         get_width=3,
-    )
+    ),
+    pdk.Layer(
+        type="GeoJsonLayer",
+        data=load_rail_geojson(),
+        line_width_min_pixels=1,
+    ),
 ]
 
 # Create a Pydeck map
