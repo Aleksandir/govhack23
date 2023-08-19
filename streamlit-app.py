@@ -4,6 +4,7 @@ from shapely.wkt import loads
 
 import streamlit as st
 import pydeck as pdk
+import geopandas as gpd
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
 
     # Create a GeoDataFrame from the linestrings
     # gdf = gpd.GeoDataFrame(geometry=df['route_geom'].apply(str_to_linstr).apply(lambda x: 'LINESTRING (' + ', '.join([' '.join(y) for y in x]) + ')').apply(loads))
-    gdf = gdp.GeoDataFrame(geometry=linestrings)
+    gdf = gpd.GeoDataFrame(geometry=linestrings)
 
     st.set_page_config(layout="wide")
     st.title("Interactive Map of Australia")
