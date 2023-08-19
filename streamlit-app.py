@@ -12,21 +12,26 @@ def load_json(filename: str):
     with open(filename) as f:
         return json.load(f)
     
-def map_score_to_line_thickness(score: float, score_type: str) -> int:
+def map_score_to_color(score: float, score_type: str) -> int:
 
-    limits_dict = {
+    LIMITS = {
         'tonne.km/hr': (0, 1000),
         'gco2/tonne.km': (2, 1000),
         'n_stopovers': (3, 1000),
         'km/h': (0, 2000),
     }
 
-    if score_type not in limits_dict.keys():
+    if score_type not in LIMITS.keys():
         raise Exception("Invalid score type")    
 
-    LOWER_LIMIT, UPPER_LIMIT = limits_dict[score_type]
+    LOWER_LIMIT, UPPER_LIMIT = LIMITS[score_type]
 
-    return score / (UPPER_LIMIT - LOWER_LIMIT)
+    normalised_score =  score / (UPPER_LIMIT - LOWER_LIMIT)
+    
+    red = int((1 - normalised_score) * 255)
+    green = int(normalised_score * 255)
+
+    return [red, green, 0]
 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
