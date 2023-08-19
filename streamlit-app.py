@@ -63,6 +63,17 @@ with col2:
     land_slider = st.slider("🚚 Land", 0, 100, 50)
     rail_slider = st.slider("🚅 Rail", 0, 100, 50)
 
+#%% Section 3: Metrics
+st.write("# Cool Metrics")
+st.divider()
+
+c1, c2, c3, c4, c5 = st.columns(5)
+c1.metric(label="Metric A", value="12345", delta="5")
+c2.metric(label="Metric B", value="12345", delta="-5")
+c3.metric(label="Metric C", value="12345", delta="25")
+c4.metric(label="Metric D", value="12345", delta="-25")
+c5.metric(label="Metric E", value="12345", delta="100")
+
 #%% Section 4: Generative AI 
 st.write('# Generative AI: Interrogate the data')
 st.divider()
