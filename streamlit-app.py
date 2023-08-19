@@ -61,6 +61,11 @@ col1, col2 = st.columns([3, 2], gap='large')  # Adjust the column widths as need
 
 
 # Display the Pydeck map in the first column
+layer_options = col1.multiselect(
+    label='What layers would you like to show', 
+    options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail'], 
+    default=['Air', 'Roads (Local)', 'Rail'],
+)
 
 col1.pydeck_chart(map_layer)
 
