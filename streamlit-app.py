@@ -21,7 +21,7 @@ df = collect_data()
 str_to_linstr = lambda linstr: [[cord.split(" ")[1], cord.split(" ")[0]] for cord in linstr.strip('LINESTRING (').strip(')').split(", ")]
 linestrings = df['route_geom'].apply(loads)
 
-st.title("Australia's Shift to H2 Freight")
+st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
 current_year = st.slider("Year Range", 1990, 2050, (2023))
 st.divider()
