@@ -92,7 +92,7 @@ target_layer_names = col1.multiselect(
 )
 
 airport_df = airport_data()
-selected_airport = col1.selectbox("Select Airport", airport_df["from_name"].unique())
+selected_airport = col1.selectbox("Select Airport", list(airport_df["from_name"].unique()) + ["None"])
 
 
 # Define the initial view state centered on Australia
@@ -123,6 +123,7 @@ layers = [
         get_source_color=[255, 255, 0],
         get_target_color=[255, 0, 255],
         auto_highlight=True,
+        visible='Air' in target_layer_names,
     ),
     pdk.Layer(
         type="GeoJsonLayer",
