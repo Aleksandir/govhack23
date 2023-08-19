@@ -10,7 +10,7 @@ st.set_page_config(layout="wide")
 #TODO: Initialise datasets from DuckDB here 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
-    df = pd.read_csv("~/Downloads/congestion_2020/geometries_2020.csv").set_index('route_name')
+    df = pd.read_csv("data/raw/congestion_2020/geometries_2020.csv").set_index('route_name')
     str_to_linstr = lambda linstr: [[cord.split(" ")[1], cord.split(" ")[0]] for cord in linstr.strip('LINESTRING (').strip(')').split(", ")]
 
     df['path'] = df['route_geom'].apply(str_to_linstr)
@@ -22,10 +22,6 @@ def collect_data() -> pd.DataFrame:
     return df
 
 df = collect_data()
-
-# Create Shapely linestrings (replace this with your actual data) - example: [(lon1, lat1), (lon2, lat2), ...]
-str_to_linstr = lambda linstr: [[cord.split(" ")[1], cord.split(" ")[0]] for cord in linstr.strip('LINESTRING (').strip(')').split(", ")]
-linestrings = df['route_geom'].apply(loads)
 
 st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
