@@ -25,6 +25,22 @@ def collect_data() -> pd.DataFrame:
 def load_rail_geojson():
     with open('./data/raw/rail_map.geojson') as f:
         return json.load(f)
+    
+@st.cache_data
+def load_nltn_road_data() -> pd.DataFrame:
+    with open('./data/raw/nltn_road.geojson') as f:
+        return json.load(f)
+
+@st.cache_data
+def load_key_rail_freight_route() -> pd.DataFrame:
+    with open('./data/raw/key_rail_freight_route.geojson') as f:
+        return json.load(f)
+    
+@st.cache_data
+def load_key_road_freight_route() -> pd.DataFrame:
+    with open('./data/raw/key_road_freight_route.geojson') as f:
+        return json.load(f)
+    
 
 df = collect_data()
 
@@ -64,6 +80,25 @@ layers = [
     pdk.Layer(
         type="GeoJsonLayer",
         data=load_rail_geojson(),
+        get_line_color=[125, 140, 0],
+        line_width_min_pixels=1,
+    ),
+    pdk.Layer(
+        type="GeoJsonLayer",
+        data=load_key_rail_freight_route(),
+        get_line_color=[0, 255, 0],
+        line_width_min_pixels=1,
+    ),
+    pdk.Layer(
+        type="GeoJsonLayer",
+        data=load_key_road_freight_route(),
+        get_line_color=[255, 0, 0],
+        line_width_min_pixels=1,
+    ),
+    pdk.Layer(
+        type="GeoJsonLayer",
+        data=load_nltn_road_data(),
+        get_line_color=[0, 0, 255],
         line_width_min_pixels=1,
     ),
 ]
