@@ -46,6 +46,16 @@ df = collect_data()
 
 st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
+
+assumptions = {
+    'kg/co2': [100],
+    'kg/km': [100],
+}
+
+with st.expander("Assumptions"):
+    st.write(assumptions)
+st.divider()
+
 current_year = st.slider("Year Range", 1990, 2050, (2023))
 st.divider()
 
