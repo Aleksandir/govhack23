@@ -272,7 +272,7 @@ st.caption("Number in bold refers to score for TonneKM / H. Number below in gree
 
 #%% Section 4: Generative AI 
 st.divider()
-st.write('# Freight-GPT - Ask questions about your data')
+st.write('## Freight-GPT - Ask questions about your data')
 st.write("""
 Got a question about your desired route? Use our Freight-GPT customised chatbot to take the guesswork out of your planning. 
 """)
