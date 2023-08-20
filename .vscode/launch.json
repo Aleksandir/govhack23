@@ -1,15 +1,12 @@
 {
-    "version": "0.1.0",
-    "configurations": [
-        {
-            "name": "streamlit",
-            "type": "python",
-            "request": "launch",
-            "module": "streamlit",
-            "args": [
-                "run",
-                "streamlit-app.py"
-            ]
-        }
-    ]
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "streamlit",
+      "type": "python",
+      "request": "launch",
+      "module": "streamlit",
+      "args": ["run", "Dashboard.py"]
     }
+  ]
+}
