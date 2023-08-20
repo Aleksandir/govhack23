@@ -34,20 +34,19 @@ def get_network_tonne_km(network_type, tonne_scaling_factor):
     baseline = np.log2(float(ASSUMPTIONS['tonne.km/hr'][network_type])) * tonne_scaling_factor
     return (np.clip(baseline, 0, LIMITS['tonne.km/hr'])) / LIMITS['tonne.km/hr']
 
-def get_network_gco2(network_type, hydrogen_uptake_percentage, gco2_scaling_factor):
-    baseline = float(ASSUMPTIONS['gco2/tonne.km'][network_type]) * gco2_scaling_factor
-    adjusted = baseline * (100 - hydrogen_uptake_percentage)/100
-    return 1- (np.clip(adjusted, 0, LIMITS['gco2/tonne.km'])) / LIMITS['gco2/tonne.km']
+def get_network_gco2(gc02, gco2_scaling_factor):
+    adj_gco2 = gc02 * gco2_scaling_factor
+    return 1- (np.clip(adj_gco2, 0, LIMITS['gco2/tonne.km'])) / LIMITS['gco2/tonne.km']
 
-def get_network_score(network_type: str, hydrogen_uptake_percentage: int, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
+def get_network_score(network_type: str, gco2, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
     score_1 = get_network_tonne_km(network_type, tonne_scaling_factor)
-    score_2 = get_network_gco2(network_type, hydrogen_uptake_percentage, gco2_scaling_factor)
+    score_2 = get_network_gco2(gco2, gco2_scaling_factor)
 
     return calculate_freight_network_score(metric_list=[score_1, score_2])
 
-def get_network_color(network_type: str, hydrogen_uptake_percentage: int, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
+def get_network_color(network_type: str, gco2, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
 
-    normalised_score = get_network_score(network_type, hydrogen_uptake_percentage, gco2_scaling_factor, tonne_scaling_factor)
+    normalised_score = get_network_score(network_type, gco2, gco2_scaling_factor, tonne_scaling_factor)
 
     red = int((1 - normalised_score) * 255)
     green = int(normalised_score * 255)
@@ -187,6 +186,21 @@ with col2:
     t4_vehicles_slider = t4.slider("Vehicles", 0, 200, t4_slider_values[4], format="%d%%")
     t4_waste_slider = t4.slider("Waste", 0, 200, t4_slider_values[5], format="%d%%")
 
+gco2 = ASSUMPTIONS['gco2/tonne.km']
+gco2_baseline_air = int(gco2['air'])
+gco2_baseline_rail = int(gco2['rail'])
+gco2_baseline_road_interstate = int(gco2['road_interstate'])
+gco2_baseline_road_local = int(gco2['road_urban'])
+
+gco2_air = int(((100 - t1_air_slider) * gco2_baseline_air) + (t1_air_slider * gco2_baseline_air * hydrogen_mult))/100
+gco2_rail = int(((100 - t1_rail_slider) * gco2_baseline_rail) + (t1_rail_slider * gco2_baseline_rail * hydrogen_mult))/100
+gco2_road_interstate = int(((100 - t1_haul_truck_slider) * gco2_baseline_road_interstate) + (t1_haul_truck_slider * gco2_baseline_road_interstate * hydrogen_mult))/100
+gco2_road_local = int(((100 - t1_urban_truck_slider) * gco2_baseline_road_local) + (t1_urban_truck_slider * gco2_baseline_road_local * hydrogen_mult))/100
+
+gc1.metric(label="Air", value=round(gco2_air, 2), delta=round(gco2_air-602, 2), delta_color="inverse")
+gc2.metric(label="Rail", value=round(gco2_rail, 2), delta=round(gco2_rail-22, 2), delta_color="inverse")
+gc3.metric(label="Roads (Interstate)", value=round(gco2_road_interstate, 2), delta=round(gco2_road_interstate-62, 2), delta_color="inverse")
+gc4.metric(label="Roads (Local)", value=round(gco2_road_local, 2), delta=round(gco2_road_local-50, 2), delta_color="inverse")
 
 # Add layers individually, as setting visibility doesn't actually remove data and improve performance.
 layers = []
@@ -195,7 +209,7 @@ if 'Roads (Local)' in target_layer_names:
         type="MVTLayer",
         data="./app/static/{z}/{x}/{y}.pbf",
         line_width_min_pixels=1,
-        get_line_color=(250, 166, 26),
+        get_line_color=get_network_color('road_urban', gco2_road_local, gco2_scaling_factor, tonne_scaling_factor),
         max_zoom=10,
     ))
 
@@ -207,8 +221,8 @@ if 'Air' in target_layer_names:
         get_stroke_width=12,
         get_source_position="from",
         get_target_position="to",
-        get_source_color=list(np.array(get_network_color('air', t1_air_slider, gco2_scaling_factor, tonne_scaling_factor))*0.6),
-        get_target_color=get_network_color('air', t1_air_slider, gco2_scaling_factor, tonne_scaling_factor),
+        get_source_color=list(np.array(get_network_color('air', gco2_air, gco2_scaling_factor, tonne_scaling_factor))*0.6),
+        get_target_color=get_network_color('air', gco2_air, gco2_scaling_factor, tonne_scaling_factor),
         auto_highlight=True,
     ))
 
@@ -216,7 +230,7 @@ if 'Rail' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_rail_freight_route(),
-        get_line_color=get_network_color('rail', t1_rail_slider, gco2_scaling_factor, tonne_scaling_factor),
+        get_line_color=get_network_color('rail', gco2_rail, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -224,7 +238,7 @@ if 'Roads (Interstate)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_road_freight_route(),
-        get_line_color=get_network_color('road_interstate', t1_haul_truck_slider, gco2_scaling_factor, tonne_scaling_factor),
+        get_line_color=get_network_color('road_interstate', gco2_road_interstate, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -232,7 +246,7 @@ if 'Roads (NLTN)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_nltn_road_data(),
-        get_line_color=get_network_color('road_urban', t1_urban_truck_slider, gco2_scaling_factor, tonne_scaling_factor),
+        get_line_color=get_network_color('road_urban', gco2_road_interstate, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -246,28 +260,12 @@ col1.pydeck_chart(map_layer)
 
 st.divider()
 
-gco2 = ASSUMPTIONS['gco2/tonne.km']
-gco2_baseline_air = int(gco2['air'])
-gco2_baseline_rail = int(gco2['rail'])
-gco2_baseline_road_interstate = int(gco2['road_interstate'])
-gco2_baseline_road_local = int(gco2['road_urban'])
-
-gco2_air = int(((100 - t1_air_slider) * gco2_baseline_air) + (t1_air_slider * gco2_baseline_air * hydrogen_mult))
-gco2_rail = int(((100 - t1_rail_slider) * gco2_baseline_rail) + (t1_rail_slider * gco2_baseline_rail * hydrogen_mult))
-gco2_road_interstate = int(((100 - t1_haul_truck_slider) * gco2_baseline_road_interstate) + (t1_haul_truck_slider * gco2_baseline_road_interstate * hydrogen_mult))
-gco2_road_local = int(((100 - t1_urban_truck_slider) * gco2_baseline_road_local) + (t1_urban_truck_slider * gco2_baseline_road_local * hydrogen_mult))
-
-gc1.metric(label="Air", value=gco2_air, delta=gco2_air-60200, delta_color="inverse")
-gc2.metric(label="Rail", value=gco2_rail, delta=gco2_rail-2200, delta_color="inverse")
-gc3.metric(label="Roads (Interstate)", value=gco2_road_interstate, delta=gco2_road_interstate-6200, delta_color="inverse")
-gc4.metric(label="Roads (Local)", value=gco2_road_local, delta=gco2_road_local-5000, delta_color="inverse")
-
 st.subheader("Score Metrics")
 c1, c2, c3, c4 = st.columns(4)
-c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
-c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
-c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
-c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
+c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2(gco2_air, gco2_scaling_factor)))
+c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2(gco2_rail, gco2_scaling_factor)))
+c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2(gco2_road_interstate, gco2_scaling_factor)))
+c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2(gco2_road_local, gco2_scaling_factor)))
 st.caption("Number in bold refers to score for TonneKM / H. Number below in green refers to GCO2/Tonne Score")
 
 
