@@ -5,5 +5,3 @@ streamlit
 pydeck
 numpy
 plotly
-pandasai
-BeautifulSoup4
