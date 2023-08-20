@@ -283,8 +283,8 @@ Got a question about your desired route? Use our Freight-GPT customised chatbot 
 OPEN_AI_API_LEY = st.secrets["OPEN_AI_API_KEY"]
 llm = OpenAI(OPEN_AI_API_LEY)
 
-citywide_indices_df = pd.read_csv('data/raw/congestion_2020/citywide_indices_2020.csv')
 route_metrics_df = pd.read_csv('data/raw/congestion_2020/route_metrics_2020.csv')
+citywide_indices_df = pd.read_csv('data/raw/congestion_2020/citywide_indices_2020.csv')
 route_times_df = pd.read_csv('data/raw/congestion_2020/route_times_2020.csv')
 segment_summary_df = pd.read_csv(
     'data/raw/congestion_2020/segment_summary_2020.csv',
@@ -292,12 +292,11 @@ segment_summary_df = pd.read_csv(
     skiprows=1
 )
 
-t1, t2, t3, t4 = st.tabs(['Citywide Indices', 'Route Metrics', 'Route Times', 'Segment Summary'])
-t1.dataframe(citywide_indices_df, use_container_width=True)
-t1.write(""" 
+t1, t2, t3, t4 = st.tabs(['Route Metrics', 'Citywide Indices', 'Route Times', 'Segment Summary'])
 
-""")
-t2.dataframe(route_metrics_df, use_container_width=True)
+t1.dataframe(route_metrics_df, use_container_width=True)
+
+t2.dataframe(citywide_indices_df, use_container_width=True)
 
 t3.dataframe(route_times_df, use_container_width=True)
 
@@ -314,9 +313,9 @@ prompt = st.text_input(
     "Ask a question about your proposed route",
     placeholder="I'm driving a truck from Adelaide to Melbourne. How long would it take me if I left at 10am? Will there be much traffic congestion?"
 )
+response = dl.chat(prompt)
 if prompt:
     with st.spinner('Analysing the data...'):
-        response = dl.chat(prompt)
         st.write(f"Your question: {prompt}")
         st.write(response)
 
