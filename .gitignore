@@ -1,3 +1,6 @@
 scratch.ipynb
 *.pyc
 .venv*
+*.log
+*secrets*
+cache.db
