@@ -1,0 +1,14 @@
+{
+"name": "static",
+"description": "static",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "10",
+"center": "150.996094,-33.870291,10",
+"bounds": "115.730500,-38.090010,153.192200,-27.300080",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.36.0",
+"generator_options": "tippecanoe -zg -e static --drop-densest-as-needed --no-tile-compression result.geojson",
+"json": "{\"vector_layers\": [ { \"id\": \"result\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 10, \"fields\": {} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"result\",\"count\": 106,\"geometry\": \"LineString\",\"attributeCount\": 0,\"attributes\": []}]}}"
+}
