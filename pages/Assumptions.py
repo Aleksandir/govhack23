@@ -22,5 +22,7 @@ assumptions_df = pd.DataFrame(ASSUMPTIONS)
 assumptions_df.columns = ["(Tonne KM) / Hour", "GCO2 / (Tonne KM)"]
 assumptions_df.index = ["Air", "Rail", "Road (Interstate)", "Road (Urban)"]
 
-st.title('Assumptions')
-st.dataframe(assumptions_df, use_container_width=True)
+if __name__ == "__main__": 
+  st.title('Assumptions')
+  st.dataframe(assumptions_df, use_container_width=True)
+
