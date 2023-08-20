@@ -97,7 +97,7 @@ def hydrogen_emission_data():
     
 df = collect_data()
 
-st.title("🚀 Australia's Shift to H2 Freight")
+st.title("🚀 Australia's Shift to Hydrogen Powered Freight")
 st.divider()
 
 st.write('grams of CO2/tonne.km')
@@ -175,11 +175,11 @@ with col2:
     t3.write('###### Predicted increase in vehicle demand')
     t3_year = t3.selectbox('Year', ('2016', '2036', '2056'), key='t3_year')
     if t3_year == '2016':
-        t3_slider_values = (0, 0, 0, 0, 0, 0)
+        t3_slider_values = (100, 100, 100, 100, 0, 0)
     if t3_year == '2036':
-        t3_slider_values = (0, 0, 0, 0, 0, 0)
+        t3_slider_values = (100, 100, 100, 100, 0, 0)
     if t3_year == '2056':
-        t3_slider_values = (0, 0, 0, 0, 0, 0)
+        t3_slider_values = (100, 100, 100, 100, 0, 0)
     t3_air_slider = t3.slider("✈️ Air", 0, 100, t3_slider_values[0], format="%d%%", key='t3_air_slider')
     t3_rail_slider = t3.slider("🚅 Rail", 0, 100, t3_slider_values[1], format="%d%%", key='t3_rail_slider')
     t3_haul_truck_slider = t3.slider("🚚 Long-haul Truck", 0, 100, t3_slider_values[2], format="%d%%", key='t3_haul_truck_slider')
@@ -326,14 +326,13 @@ dl = SmartDatalake([
     segment_summary_df,
 ], config={"llm": llm, "enable_cache": False}, )
 
-prompt = st.text_input(
-    "Ask a question about your proposed route",
-    placeholder="I'm driving a truck from Adelaide to Melbourne. How long would it take me if I left at 10am? Will there be much traffic congestion?"
-)
+prompt = st.chat_input("I'm driving along route 32 - Derrimut to Montrose, what is the max median travel time?")
 
-response = dl.chat(prompt)
 if prompt:
+    st.write(f"### Your question")
+    st.write(prompt)
+    st.write(f"### Freight-GPT says")
     with st.spinner('Analysing the data...'):
-        st.write(f"Your question: {prompt}")
+        response = dl.chat(prompt)
         st.write(response)
 
