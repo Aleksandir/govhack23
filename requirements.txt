@@ -5,4 +5,5 @@ streamlit
 pydeck
 numpy
 plotly
-pandasai==0.2.2
+pandasai
+beautifulsoup4

@@ -11,31 +11,15 @@ from pandasai.llm import OpenAI
 st.set_page_config(layout="wide")
 from pages.Assumptions import ASSUMPTIONS
 
+LIMITS = {
+        'tonne.km/hr': np.log2(1_000_000),
+        'gco2/tonne.km': 100,
+        'km/h': 1000,
+    }
+
 def load_json(filename: str):
     with open(filename) as f:
         return json.load(f)
-
-
-def calculate_metric(score: float, score_type: str, hydrogen_uptake_percentage: int) -> float:
-    
-    LIMITS = {
-        'tonne.km/hr': (0, 1000),
-        'gco2/tonne.km': (1, 1000),
-        'km/h': (2, 1000),
-    }
-
-    if score_type not in LIMITS.keys():
-        raise Exception("Invalid score type")    
-
-    # Adjust for hydrogen uptake 
-    HYDROGEN_FACTOR = 200
-    score += (hydrogen_uptake_percentage * HYDROGEN_FACTOR)
-
-    # Normalise metric between upper and lower limits
-    LOWER_LIMIT, UPPER_LIMIT = LIMITS[score_type]
-    normalised_score =  np.clip(score - LOWER_LIMIT, 0, UPPER_LIMIT) / (UPPER_LIMIT - LOWER_LIMIT)
-
-    return normalised_score
 
 
 def calculate_freight_network_score(metric_list: list[float]) -> float:
@@ -44,26 +28,31 @@ def calculate_freight_network_score(metric_list: list[float]) -> float:
         raise Exception("Empty metric list: no metrics to calculate")
 
     return np.mean(metric_list)
-     
 
-def map_score_to_color(normalised_score: float) -> list[int]:
+
+def get_network_tonne_km(network_type, tonne_scaling_factor):
+    baseline = np.log2(float(ASSUMPTIONS['tonne.km/hr'][network_type])) * tonne_scaling_factor
+    return (np.clip(baseline, 0, LIMITS['tonne.km/hr'])) / LIMITS['tonne.km/hr']
+
+def get_network_gco2(network_type, hydrogen_uptake_percentage, gco2_scaling_factor):
+    baseline = float(ASSUMPTIONS['gco2/tonne.km'][network_type]) * gco2_scaling_factor
+    adjusted = baseline * (100 - hydrogen_uptake_percentage)/100
+    return 1- (np.clip(adjusted, 0, LIMITS['gco2/tonne.km'])) / LIMITS['gco2/tonne.km']
+
+def get_network_score(network_type: str, hydrogen_uptake_percentage: int, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
+    score_1 = get_network_tonne_km(network_type, tonne_scaling_factor)
+    score_2 = get_network_gco2(network_type, hydrogen_uptake_percentage, gco2_scaling_factor)
+
+    return calculate_freight_network_score(metric_list=[score_1, score_2])
+
+def get_network_color(network_type: str, hydrogen_uptake_percentage: int, gco2_scaling_factor, tonne_scaling_factor) -> list[int]:
+
+    normalised_score = get_network_score(network_type, hydrogen_uptake_percentage, gco2_scaling_factor, tonne_scaling_factor)
 
     red = int((1 - normalised_score) * 255)
     green = int(normalised_score * 255)
 
     return [red, green, 0]
-
-
-def get_network_color(network_type: str, hydrogen_uptake_percentage: int) -> list[int]:
-
-    score_1 = calculate_metric(score=float(ASSUMPTIONS['tonne.km/hr'][network_type]), score_type='tonne.km/hr', hydrogen_uptake_percentage=hydrogen_uptake_percentage)
-    score_2 = calculate_metric(score=float(ASSUMPTIONS['gco2/tonne.mk'][network_type]), score_type='gco2/tonne.km', hydrogen_uptake_percentage=hydrogen_uptake_percentage)
-
-    network_score = calculate_freight_network_score(metric_list=[score_1, score_2])
-    rgb_value_list = map_score_to_color(normalised_score=network_score)
-
-    return rgb_value_list
-
 
 @st.cache_data
 def collect_data() -> pd.DataFrame:
@@ -111,16 +100,10 @@ df = collect_data()
 st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
 
-#%% Section 2: Metrics
+gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
+tonne_scaling_factor = st.slider("Tonne KM/H Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
 
-c1, c2, c3, c4, c5 = st.columns(5)
-c1.metric(label="Metric A", value="12345", delta="5")
-c2.metric(label="Metric B", value="12345", delta="-5")
-c3.metric(label="Metric C", value="12345", delta="25")
-c4.metric(label="Metric D", value="12345", delta="-25")
-c5.metric(label="Metric E", value="12345", delta="100")
 st.divider()
-
 #%% Section 3 - Maps and Config
 # Use columns to create layout
 col1, col2 = st.columns([3, 2], gap='medium')  # Adjust the column widths as needed
@@ -129,11 +112,11 @@ col1, col2 = st.columns([3, 2], gap='medium')  # Adjust the column widths as nee
 target_layer_names = col1.multiselect(
     label='What layers would you like to show', 
     options=['Air', 'Roads (Local)', 'Roads (Interstate)', 'Rail', 'Roads (NLTN)'], 
-    default=['Air', 'Roads (Local)', 'Rail'],
+    default=['Air', 'Roads (Local)', 'Rail', 'Roads (Interstate)'],
 )
 
 airport_df = airport_data()
-selected_airport = col1.selectbox("Select Airport", list(airport_df["from_name"].unique()) + ["None"])
+selected_airport = col1.selectbox("Select Airport", list(airport_df["from_name"].unique()) + ["None"], index=6)
 
 
 # Define the initial view state centered on Australia
@@ -234,8 +217,8 @@ if 'Air' in target_layer_names:
         get_stroke_width=12,
         get_source_position="from",
         get_target_position="to",
-        get_source_color=list(np.array(get_network_color('air', hydrogen_uptake_percentage=t1_air_slider))*0.45),
-        get_target_color=get_network_color('air', hydrogen_uptake_percentage=t1_air_slider),
+        get_source_color=list(np.array(get_network_color('air', t1_air_slider, gco2_scaling_factor, tonne_scaling_factor))*0.6),
+        get_target_color=get_network_color('air', t1_air_slider, gco2_scaling_factor, tonne_scaling_factor),
         auto_highlight=True,
     ))
 
@@ -243,7 +226,7 @@ if 'Rail' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_rail_freight_route(),
-        get_line_color=get_network_color('rail', hydrogen_uptake_percentage=t1_rail_slider),
+        get_line_color=get_network_color('rail', t1_rail_slider, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -251,7 +234,7 @@ if 'Roads (Interstate)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_key_road_freight_route(),
-        get_line_color=get_network_color('road_interstate', hydrogen_uptake_percentage=t1_haul_truck_slider),
+        get_line_color=get_network_color('road_interstate', t1_haul_truck_slider, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -259,7 +242,7 @@ if 'Roads (NLTN)' in target_layer_names:
     layers.append(pdk.Layer(
         type="GeoJsonLayer",
         data=load_nltn_road_data(),
-        get_line_color=get_network_color('road_urban', hydrogen_uptake_percentage=t1_urban_truck_slider),
+        get_line_color=get_network_color('road_urban', t1_urban_truck_slider, gco2_scaling_factor, tonne_scaling_factor),
         line_width_min_pixels=1,
     ))
 
@@ -270,6 +253,15 @@ map_layer = pdk.Deck(
     layers=layers
 )
 col1.pydeck_chart(map_layer)
+
+st.divider()
+#%%
+c1, c2, c3, c4 = st.columns(4)
+c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
+c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
+c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
+c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
+st.divider()
 
 
 #%% Section 4: Generative AI 
@@ -307,7 +299,7 @@ dl = SmartDatalake([
     route_metrics_df,
     route_times_df,
     segment_summary_df,
-], config={"llm": llm})
+], config={"llm": llm, "enable_cache": False}, )
 
 prompt = st.text_input(
     "Ask a question about your proposed route",
