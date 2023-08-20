@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 # GCO2: https://www.ecta.com/wp-content/uploads/2021/03/ECTA-CEFIC-GUIDELINE-FOR-MEASURING-AND-MANAGING-CO2-ISSUE-1.pdf
@@ -17,8 +18,9 @@ ASSUMPTIONS = {
     }
 }
 
-
-
+assumptions_df = pd.DataFrame(ASSUMPTIONS)
+assumptions_df.columns = ["(Tonne KM) / Hour", "GCO2 / (Tonne KM)"]
+assumptions_df.index = ["Air", "Rail", "Road (Interstate)", "Road (Urban)"]
 
 st.title('Assumptions')
-st.write(ASSUMPTIONS)
+st.dataframe(assumptions_df, use_container_width=True)
