@@ -55,19 +55,6 @@ def get_network_color(network_type: str, hydrogen_uptake_percentage: int, gco2_s
     return [red, green, 0]
 
 @st.cache_data
-def collect_data() -> pd.DataFrame:
-    df = pd.read_csv("data/raw/congestion_2020/geometries_2020.csv").set_index('route_name')
-    str_to_linstr = lambda linstr: [[cord.split(" ")[1], cord.split(" ")[0]] for cord in linstr.strip('LINESTRING (').strip(')').split(", ")]
-
-    df['path'] = df['route_geom'].apply(str_to_linstr)
-    df['name'] = df.index
-    df['color'] = [(250, 166, 26)]*len(df.index)
-
-    df = df.reset_index()[['name', 'color', 'path']]
-    df["path"] = df["path"].apply(lambda path: [x[::-1] for x in path])
-    return df
-
-@st.cache_data
 def load_rail_geojson():
     return load_json('./data/simplified/rail_map_simplified.geojson')
     
@@ -94,8 +81,6 @@ def metric_tonne_km_data():
 @st.cache_data
 def hydrogen_emission_data():
     return pd.read_json("data/raw/hydrogen_emission_pct.json")
-    
-df = collect_data()
 
 st.title("🚀 Australia's Shift to Hydrogen Powered Freight")
 st.divider()
@@ -166,7 +151,7 @@ with col2:
     sizes = [t2_slider_fossil_fuels, t2_slider_gas, t2_slider_electrolysis, t2_slider_biomass]
     sizes_total = max(sum(sizes), 1)
     sizes_norm = [s/sizes_total for s in sizes]
-    fig = px.pie(df, values=sizes_norm, names=t2_labels, hole=0.3)
+    fig = px.pie(None, values=sizes_norm, names=t2_labels, hole=0.3)
     fig.update_layout(margin=dict(l=20, r=20, t=30, b=0), showlegend=False)
     t2_b.plotly_chart(fig, use_container_width=True)
 
@@ -207,14 +192,11 @@ with col2:
 layers = []
 if 'Roads (Local)' in target_layer_names:
     layers.append(pdk.Layer(
-        type="PathLayer",
-        data=df,
-        pickable=True,
-        get_color="color",
-        width_scale=20,
-        width_min_pixels=2,
-        get_path="path",
-        get_width=3,
+        type="MVTLayer",
+        data="./app/static/{z}/{x}/{y}.pbf",
+        line_width_min_pixels=1,
+        get_line_color=(250, 166, 26),
+        max_zoom=10,
     ))
 
 if 'Air' in target_layer_names:
