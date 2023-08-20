@@ -97,7 +97,7 @@ def hydrogen_emission_data():
     
 df = collect_data()
 
-st.title("🚀 Australia's Shift to H2 Freight")
+st.title("🚀 Australia's Shift to Hydrogen Powered Freight")
 st.divider()
 
 gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
@@ -301,14 +301,13 @@ dl = SmartDatalake([
     segment_summary_df,
 ], config={"llm": llm, "enable_cache": False}, )
 
-prompt = st.text_input(
-    "Ask a question about your proposed route",
-    placeholder="I'm driving a truck from Adelaide to Melbourne. How long would it take me if I left at 10am? Will there be much traffic congestion?"
-)
+prompt = st.chat_input("I'm driving along route 32 - Derrimut to Montrose, what is the max median travel time?")
+st.write(f"### Your question")
 
-response = dl.chat(prompt)
 if prompt:
+    st.write(prompt)
+    st.write(f"### Freight-GPT says")
     with st.spinner('Analysing the data...'):
-        st.write(f"Your question: {prompt}")
+        response = dl.chat(prompt)
         st.write(response)
 
