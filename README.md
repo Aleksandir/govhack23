@@ -8,7 +8,7 @@
 
 ## Live Application Link
 
-https://govhack23.streamlit.app/
+https://freight-analysis-dashboard.streamlit.app/
 
 ## Data Sources
 
