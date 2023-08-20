@@ -3,4 +3,3 @@ scratch.ipynb
 .venv*
 *.log
 *secrets*
-cache.db
