@@ -313,6 +313,7 @@ prompt = st.text_input(
     "Ask a question about your proposed route",
     placeholder="I'm driving a truck from Adelaide to Melbourne. How long would it take me if I left at 10am? Will there be much traffic congestion?"
 )
+
 response = dl.chat(prompt)
 if prompt:
     with st.spinner('Analysing the data...'):
