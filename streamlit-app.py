@@ -5,8 +5,8 @@ import pandas as pd
 import plotly.express as px
 import pydeck as pdk
 import streamlit as st
-from pandasai import SmartDatalake
-from pandasai.llm import OpenAI
+# from pandasai import SmartDatalake
+# from pandasai.llm import OpenAI
 
 st.set_page_config(layout="wide")
 from pages.Assumptions import ASSUMPTIONS
@@ -272,34 +272,34 @@ map_layer = pdk.Deck(
 col1.pydeck_chart(map_layer)
 
 
-#%% Section 4: Generative AI 
-st.divider()
-st.write('# Ask a question about your freight route?')
-st.write("""
-Got a question about your desired route? Use the natural language chatbot to ask questions about your route.
-""")
+# #%% Section 4: Generative AI 
+# st.divider()
+# st.write('# Ask a question about your freight route?')
+# st.write("""
+# Got a question about your desired route? Use the natural language chatbot to ask questions about your route.
+# """)
 
 
-OPEN_AI_API_LEY = st.secrets["OPEN_AI_API_KEY"]
-llm = OpenAI(OPEN_AI_API_LEY)
+# OPEN_AI_API_LEY = st.secrets["OPEN_AI_API_KEY"]
+# llm = OpenAI(OPEN_AI_API_LEY)
 
-congestion_summary_df = pd.read_csv(
-    'data/raw/congestion_2020/segment_summary_2020.csv',
-    names=['road_id', 'hour_of_the_day', 'n_obvs', 'speed_limit', 'UQ', 'median', 'LQ', 'road_distance', 'route_name'],
-    skiprows=1
-)
+# congestion_summary_df = pd.read_csv(
+#     'data/raw/congestion_2020/segment_summary_2020.csv',
+#     names=['road_id', 'hour_of_the_day', 'n_obvs', 'speed_limit', 'UQ', 'median', 'LQ', 'road_distance', 'route_name'],
+#     skiprows=1
+# )
 
-# st.dataframe(congestion_summary_df, use_container_width=True)
+# # st.dataframe(congestion_summary_df, use_container_width=True)
 
-dl = SmartDatalake([
-    congestion_summary_df, 
-], config={"llm": llm})
+# dl = SmartDatalake([
+#     congestion_summary_df, 
+# ], config={"llm": llm})
 
 
-prompt = st.chat_input("Ask a question about the data")
-if prompt:
-    with st.spinner('Analysing the data...'):
-        response = dl.chat(prompt)
-        st.write(f"Your question: {prompt}")
-        st.write(response)
+# prompt = st.chat_input("Ask a question about the data")
+# if prompt:
+#     with st.spinner('Analysing the data...'):
+#         response = dl.chat(prompt)
+#         st.write(f"Your question: {prompt}")
+#         st.write(response)
 
