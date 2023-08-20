@@ -302,9 +302,9 @@ dl = SmartDatalake([
 ], config={"llm": llm, "enable_cache": False}, )
 
 prompt = st.chat_input("I'm driving along route 32 - Derrimut to Montrose, what is the max median travel time?")
-st.write(f"### Your question")
 
 if prompt:
+    st.write(f"### Your question")
     st.write(prompt)
     st.write(f"### Freight-GPT says")
     with st.spinner('Analysing the data...'):
