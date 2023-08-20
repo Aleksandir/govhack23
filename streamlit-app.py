@@ -100,6 +100,8 @@ df = collect_data()
 st.title("🚀 Australia's Shift to H2 Freight")
 st.divider()
 
+st.write('grams of CO2/tonne.km')
+gc1, gc2, gc3, gc4 = st.columns(4)
 gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
 tonne_scaling_factor = st.slider("Tonne KM/H Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
 
@@ -165,6 +167,10 @@ with col2:
     fig = px.pie(df, values=sizes_norm, names=t2_labels, hole=0.3)
     fig.update_layout(margin=dict(l=20, r=20, t=30, b=0), showlegend=False)
     t2_b.plotly_chart(fig, use_container_width=True)
+
+    hydrogen_mult_dividor = 27  # if all fossil fuels
+    hydrogen_mult_numerator = sizes_norm[0] * 27 + sizes_norm[1] * 12 + sizes_norm[2] * 0 + sizes_norm[3] * -2
+    hydrogen_mult = hydrogen_mult_numerator / hydrogen_mult_dividor
 
     t3.write('###### Predicted increase in vehicle demand')
     t3_year = t3.selectbox('Year', ('2016', '2036', '2056'), key='t3_year')
@@ -256,11 +262,30 @@ col1.pydeck_chart(map_layer)
 
 st.divider()
 #%%
-c1, c2, c3, c4 = st.columns(4)
-c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
-c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
-c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
-c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
+# c1, c2, c3, c4 = st.columns(4)
+# c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
+# c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
+# c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
+# c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
+
+gco2 = ASSUMPTIONS['gco2/tonne.km']
+gco2_baseline_air = int(gco2['air'])
+gco2_baseline_rail = int(gco2['rail'])
+gco2_baseline_road_interstate = int(gco2['road_interstate'])
+gco2_baseline_road_local = int(gco2['road_urban'])
+
+gco2_air = int(((100 - t1_air_slider) * gco2_baseline_air) + (t1_air_slider * gco2_baseline_air * hydrogen_mult))
+gco2_rail = int(((100 - t1_rail_slider) * gco2_baseline_rail) + (t1_rail_slider * gco2_baseline_rail * hydrogen_mult))
+gco2_road_interstate = int(((100 - t1_haul_truck_slider) * gco2_baseline_road_interstate) + (t1_haul_truck_slider * gco2_baseline_road_interstate * hydrogen_mult))
+gco2_road_local = int(((100 - t1_urban_truck_slider) * gco2_baseline_road_local) + (t1_urban_truck_slider * gco2_baseline_road_local * hydrogen_mult))
+
+
+gc1.metric(label="Air", value=gco2_air, delta=gco2_air-60200, delta_color="inverse")
+gc2.metric(label="Rail", value=gco2_rail, delta=gco2_rail-2200, delta_color="inverse")
+gc3.metric(label="Roads (Interstate)", value=gco2_road_interstate, delta=gco2_road_interstate-6200, delta_color="inverse")
+gc4.metric(label="Roads (Local)", value=gco2_road_local, delta=gco2_road_local-5000, delta_color="inverse")
+
+
 st.divider()
 
 
