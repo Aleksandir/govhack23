@@ -131,7 +131,7 @@ initial_view = pdk.ViewState(
 gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
 st.caption("Scales GCO2 Production rates across all networks. For example, 0.6 corresponds to a 40% reduction in overall GC02 for non-hydrogen fuel sources.")
 tonne_scaling_factor = st.slider("Tonne KM/H Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
-st.caption("Scales Tonne KM/H efficiency rates across all networks. For example, 1.6 corresponds to a 30% increase in overall Tonnes KM / H.")
+st.caption("Scales Tonne KM/H efficiency rates across all networks. For example, 1.3 corresponds to a 30% increase in overall Tonnes KM / H.")
 
 # Display the slider values in the second column
 with col2:
