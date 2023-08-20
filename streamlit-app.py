@@ -307,7 +307,7 @@ dl = SmartDatalake([
     route_metrics_df,
     route_times_df,
     segment_summary_df,
-], config={"llm": llm})
+], config={"llm": llm, "enable_cache": False}, )
 
 prompt = st.text_input(
     "Ask a question about your proposed route",
