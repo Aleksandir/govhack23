@@ -100,10 +100,8 @@ df = collect_data()
 st.title("🚀 Australia's Shift to Hydrogen Powered Freight")
 st.divider()
 
-st.write('grams of CO2/tonne.km')
+st.subheader("Grams of CO2/tonne.km")
 gc1, gc2, gc3, gc4 = st.columns(4)
-gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
-tonne_scaling_factor = st.slider("Tonne KM/H Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
 
 st.divider()
 #%% Section 3 - Maps and Config
@@ -130,6 +128,10 @@ initial_view = pdk.ViewState(
     bearing=0,
 )
 
+gco2_scaling_factor = st.slider("GCO2 Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
+st.caption("Scales GCO2 Production rates across all networks. For example, 0.6 corresponds to a 40% reduction in overall GC02.")
+tonne_scaling_factor = st.slider("Tonne KM/H Scaling Factor", 0.0, 2.0, step=0.1, value=1.0)
+st.caption("Scales Tonne KM/H efficiency rates across all networks. For example, 1.6 corresponds to a 30% increase in overall Tonnes KM / H.")
 
 # Display the slider values in the second column
 with col2:
@@ -261,12 +263,6 @@ map_layer = pdk.Deck(
 col1.pydeck_chart(map_layer)
 
 st.divider()
-#%%
-# c1, c2, c3, c4 = st.columns(4)
-# c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
-# c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
-# c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
-# c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
 
 gco2 = ASSUMPTIONS['gco2/tonne.km']
 gco2_baseline_air = int(gco2['air'])
@@ -279,14 +275,19 @@ gco2_rail = int(((100 - t1_rail_slider) * gco2_baseline_rail) + (t1_rail_slider 
 gco2_road_interstate = int(((100 - t1_haul_truck_slider) * gco2_baseline_road_interstate) + (t1_haul_truck_slider * gco2_baseline_road_interstate * hydrogen_mult))
 gco2_road_local = int(((100 - t1_urban_truck_slider) * gco2_baseline_road_local) + (t1_urban_truck_slider * gco2_baseline_road_local * hydrogen_mult))
 
-
 gc1.metric(label="Air", value=gco2_air, delta=gco2_air-60200, delta_color="inverse")
 gc2.metric(label="Rail", value=gco2_rail, delta=gco2_rail-2200, delta_color="inverse")
 gc3.metric(label="Roads (Interstate)", value=gco2_road_interstate, delta=gco2_road_interstate-6200, delta_color="inverse")
 gc4.metric(label="Roads (Local)", value=gco2_road_local, delta=gco2_road_local-5000, delta_color="inverse")
 
+st.subheader("Score Metrics")
+c1, c2, c3, c4 = st.columns(4)
+c1.metric(label="Air", value=int(100*get_network_tonne_km('air', tonne_scaling_factor)), delta=int(100*get_network_gco2('air', t1_air_slider, gco2_scaling_factor)))
+c2.metric(label="Rail", value=int(100*get_network_tonne_km('rail', tonne_scaling_factor)), delta=int(100*get_network_gco2('rail', t1_rail_slider, gco2_scaling_factor)))
+c3.metric(label="Roads (Interstate)", value=int(100*get_network_tonne_km('road_interstate', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_interstate', t1_haul_truck_slider, gco2_scaling_factor)))
+c4.metric(label="Roads (Local)", value=int(100*get_network_tonne_km('road_urban', tonne_scaling_factor)), delta=int(100*get_network_gco2('road_urban', t1_urban_truck_slider, gco2_scaling_factor)))
+st.caption("Number in bold refers to score for TonneKM / H. Number below in green refers to GCO2/Tonne Score")
 
-st.divider()
 
 
 #%% Section 4: Generative AI 
