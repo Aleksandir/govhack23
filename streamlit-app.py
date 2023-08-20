@@ -8,7 +8,7 @@ import streamlit as st
 from pandasai import SmartDatalake
 from pandasai.llm import OpenAI
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Australia's Shift to Hydrogen Powered Freight", layout="wide")
 from pages.Assumptions import ASSUMPTIONS
 
 LIMITS = {
