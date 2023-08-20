@@ -307,9 +307,9 @@ dl = SmartDatalake([
     segment_summary_df,
 ], config={"llm": llm, "enable_cache": False}, )
 
-prompt = st.chat_input("I'm driving along route 32 - Derrimut to Montrose, what is the max median travel time?")
+prompt = st.text_input("Prompt:", placeholder="I'm driving along route 32 - Derrimut to Montrose, what is the max median travel time?")
 
-if prompt:
+if st.button("Send") or prompt:
     st.write(f"### Your question")
     st.write(prompt)
     st.write(f"### Freight-GPT says")
