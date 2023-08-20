@@ -2,6 +2,8 @@
 
 `Dashboard.py` contains the main application. This is the final product to demonstrate.
 
+![alt text](app-screenshot.png)
+
 ## To run locally
 
 `streamlit run Dashboard.py`
